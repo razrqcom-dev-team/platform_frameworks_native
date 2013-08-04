@@ -1,16 +1,16 @@
-/* 
+/*
  ** Copyright 2007, The Android Open Source Project
  **
- ** Licensed under the Apache License, Version 2.0 (the "License"); 
- ** you may not use this file except in compliance with the License. 
- ** You may obtain a copy of the License at 
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
  **
- **     http://www.apache.org/licenses/LICENSE-2.0 
+ **     http://www.apache.org/licenses/LICENSE-2.0
  **
- ** Unless required by applicable law or agreed to in writing, software 
- ** distributed under the License is distributed on an "AS IS" BASIS, 
- ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- ** See the License for the specific language governing permissions and 
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
  ** limitations under the License.
  */
 
@@ -20,14 +20,15 @@
 
 #include <sys/ioctl.h>
 
-#include <GLES2/gl2.h>
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
 #include <GLES2/gl2ext.h>
 
 #include <cutils/log.h>
 #include <cutils/properties.h>
 
-#include "hooks.h"
-#include "egl_impl.h"
+#include "../hooks.h"
+#include "../egl_impl.h"
 
 using namespace android;
 
@@ -66,10 +67,10 @@ using namespace android;
     #define API_ENTRY(_api) __attribute__((noinline)) _api
 
     #define CALL_GL_API(_api, ...)                               \
-        register unsigned int t0 asm("t0");                      \
-        register unsigned int fn asm("t1");                      \
-        register unsigned int tls asm("v1");                     \
-        register unsigned int v0 asm("v0");                      \
+        register unsigned int _t0 asm("t0");                     \
+        register unsigned int _fn asm("t1");                     \
+        register unsigned int _tls asm("v1");                    \
+        register unsigned int _v0 asm("v0");                     \
         asm volatile(                                            \
             ".set  push\n\t"                                     \
             ".set  noreorder\n\t"                                \
@@ -84,10 +85,10 @@ using namespace android;
             "j     %[fn]\n\t"                                    \
             " move %[v0], $0\n\t"                                \
             ".set  pop\n\t"                                      \
-            : [fn] "=c"(fn),                                     \
-              [tls] "=&r"(tls),                                  \
-              [t0] "=&r"(t0),                                    \
-              [v0] "=&r"(v0)                                     \
+            : [fn] "=c"(_fn),                                    \
+              [tls] "=&r"(_tls),                                 \
+              [t0] "=&r"(_t0),                                   \
+              [v0] "=&r"(_v0)                                    \
             : [OPENGL_API] "I"(TLS_SLOT_OPENGL_API*4),           \
               [API] "I"(__builtin_offsetof(gl_hooks_t, gl._api)) \
             :                                                    \
@@ -119,8 +120,9 @@ using namespace android;
 
 
 extern "C" {
-#include "gl2_api.in"
+#include "gl3_api.in"
 #include "gl2ext_api.in"
+#include "gl3ext_api.in"
 }
 
 #undef API_ENTRY
